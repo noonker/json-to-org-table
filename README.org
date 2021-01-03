@@ -165,12 +165,33 @@ json
 * WIP
 Org bable post processing with =json-to-org-table=
 
-#+name: to-json-table
-#+begin_src emacs-lisp :var str="" :results output
-(json-to-org-table-parse-json-string str)
-#+end_src
+#+begin_src org
+,#+name: requester
+,#+begin_src bash :results drawer
+curl -XGET https://jsonplaceholder.typicode.com/posts/1
+,#+end_src
 
-#+begin_src restclient :results :post to_json_table(*this*)
-GET https://jsonplaceholder.typicode.com/posts/1
-Accept: application/json
+,#+RESULTS: requester
+:results:
+{
+  "userId": 1,
+  "id": 1,
+  "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+}
+:end:
+
+,#+name: to-json-table
+,#+begin_src emacs-lisp :var str=requester() :results raw
+(json-to-org-table-parse-json-string str)
+,#+end_src
+
+,#+RESULTS: to-json-table
+| key    | value                                                                                                                                                       |
+|--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| userId | 1                                                                                                                                                           |
+| id     | 1                                                                                                                                                           |
+| title  | sunt aut facere repellat provident occaecati excepturi optio reprehenderit                                                                                  |
+| body   | quia et suscipitsuscipit recusandae consequuntur expedita et cumreprehenderit molestiae ut ut quas totamnostrum rerum est autem sunt rem eveniet architecto |
+
 #+end_src
