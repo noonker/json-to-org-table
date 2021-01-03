@@ -8,6 +8,65 @@ This was created to two primary use cases:
  - Human readability of API results
  - Exportablity of API results
 
+* Use
+Use it by calling
+#+begin_src emacs-lisp
+(json-to-org-table-parse-json-string <some json string>)
+(json-to-org-table-parse-json <Emacs json object>)
+#+end_src
+
+Example:
+#+begin_src emacs-lisp
+(json-to-org-table-parse-json-string "{\"glossary\": {\"title\": \"example glossary\",\"GlossDiv\": {\"title\": \"S\",\"GlossList\": {\"GlossEntry\": {\"ID\": \"SGML\",\"SortAs\": \"SGML\",\"GlossTerm\": \"Standard Generalized Markup Language\",\"Acronym\": \"SGML\",\"Abbrev\": \"ISO 8879:1986\",\"GlossDef\": {\"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\"GlossSeeAlso\": [\"GML\", \"XML\"]},\"GlossSee\": \"markup\"}}}}}")
+#+end_src
+
+#+begin_src org
+| key      | value    |
+|----------+----------|
+| glossary | [[glossary]] |
+
+,#+name: glossary
+| key      | value             |
+|----------+-------------------|
+| title    | example glossary  |
+| GlossDiv | [[GlossDiv_glossary]] |
+
+,#+name: GlossDiv_glossary
+| key       | value                       |
+|-----------+-----------------------------|
+| title     | S                           |
+| GlossList | [[GlossList_GlossDiv_glossary]] |
+
+,#+name: GlossList_GlossDiv_glossary
+| key        | value                                  |
+|------------+----------------------------------------|
+| GlossEntry | [[GlossEntry_GlossList_GlossDiv_glossary]] |
+
+,#+name: GlossEntry_GlossList_GlossDiv_glossary
+| key       | value                                           |
+|-----------+-------------------------------------------------|
+| ID        | SGML                                            |
+| SortAs    | SGML                                            |
+| GlossTerm | Standard Generalized Markup Language            |
+| Acronym   | SGML                                            |
+| Abbrev    | ISO 8879:1986                                   |
+| GlossDef  | [[GlossDef_GlossEntry_GlossList_GlossDiv_glossary]] |
+| GlossSee  | markup                                          |
+
+,#+name: GlossDef_GlossEntry_GlossList_GlossDiv_glossary
+| key          | value                                                                    |
+|--------------+--------------------------------------------------------------------------|
+| para         | A meta-markup language, used to create markup languages such as DocBook. |
+| GlossSeeAlso | [[GlossSeeAlso_GlossDef_GlossEntry_GlossList_GlossDiv_glossary]]             |
+
+,#+name: GlossSeeAlso_GlossDef_GlossEntry_GlossList_GlossDiv_glossary
+| GlossSeeAlso_GlossDef_GlossEntry_GlossList_GlossDiv_glossary |
+|--------------------------------------------------------------|
+| GML                                                          |
+| XML                                                          |
+#+end_src
+
+
 * Structures
 ** Hashmap
 Json
@@ -100,4 +159,25 @@ json
 | Mike                         |
 | Stu                          |
 | Hazel Meade                  |
+#+end_src
+
+
+#+begin_src json :results :post (json-to-org-table-parse-json-string *this*)
+[{"type": "human", "name": "Manuel", "nickname": "Mannie"},
+ {"type": "AI", "name": "HOLMES IV", "nickname": "Mike"},
+ {"type": "human", "name": "Bernardo de la Paz", "nickname": "The Professor"}]
+#+end_src
+
+
+* WIP
+Org bable post processing with =json-to-org-table=
+
+#+name: to-json-table
+#+begin_src emacs-lisp :var str="" :results output
+(json-to-org-table-parse-json-string str)
+#+end_src
+
+#+begin_src restclient :results :post to_json_table(*this*)
+GET https://jsonplaceholder.typicode.com/posts/1
+Accept: application/json
 #+end_src

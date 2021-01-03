@@ -176,7 +176,7 @@ REF: a reference is this is a linked table"
 (defun json-to-org-table-parse-json-string (str)
   "Read a json string, parse it, and return a tablified string.
 STR: json string"
-  (j2t-tablify (json-read-from-str str)))
+  (j2t-tablify (json-read-from-string str)))
 
 (defun json-to-org-table-parse-json (js)
   "Read an Emacs json object, parse it, and return a tablified string.
