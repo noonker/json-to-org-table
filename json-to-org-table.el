@@ -20,6 +20,8 @@
 ;;; Code:
 ;;; TODO: Better Examples
 
+(defvar j2t-debug nil)
+
 (defvar j2t-cs-map [("\r" "")
                     ("\n" "")]
   "Map of characters to replace in json string.")
@@ -110,7 +112,7 @@ ELT: a json object
 REF: a reference is this is a linked table"
   (let ((cur "")
         (nex '()))
-    (message (format "Got here! I was called with:\n  elt: %s\n  ref: %s\n" elt ref))
+    (if j2t-debug (message (format "Got here! I was called with:\n  elt: %s\n  ref: %s\n" elt ref)))
     (if ref (j2t-c+ (format "#+name: %s\n" ref))) ;; If there's a reference add a name block to establish the linkage
 
     (cond
@@ -120,15 +122,15 @@ REF: a reference is this is a linked table"
         (j2t-c+ "|key|value|\n|-\n") ;; Add headers for hashmap table
         ;; For each element in the hashmap either add the value or add a link to the table of values
         (mapc (lambda (x) (let ((parsed (j2t-parse-hash-element x ref)))
-                         (format "x: %s\nparsed: %s" x parsed)
-                         (j2t-c+ (car parsed))
-                         (if (cadr parsed) (setq nex (append (cdr parsed) nex))))) elt)
+                       (format "x: %s\nparsed: %s" x parsed)
+                       (j2t-c+ (car parsed))
+                       (if (cadr parsed) (setq nex (append (cdr parsed) nex))))) elt)
         (j2t-c+ "\n")
         ;; Recursively call this function to create any subtables
-        (mapc (lambda (x)  (progn  (message (format "\nThe symbol I'm going to look up is: %s\n  it's type is: %s\n  and the value is: %s" x (type-of x) (alist-get x elt)))
-                                (if ref
-                                    (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s_%s" x ref)))
-                                  (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s" x)))))) nex)
+        (mapc (lambda (x)  (progn  (if j2t-debug (message (format "\nThe symbol I'm going to look up is: %s\n  it's type is: %s\n  and the value is: %s" x (type-of x) (alist-get x elt))))
+                              (if ref
+                                  (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s_%s" x ref)))
+                                (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s" x)))))) nex)
         ))
 
      ;; ----- Element is a vector and is a vector of hash-maps -----
@@ -150,9 +152,9 @@ REF: a reference is this is a linked table"
 
       ;; Recursively call this function to create any subtables
       (mapc (lambda (x) (let ((key (nth 0 x))
-                           (value (nth 1 x))
-                           (i (nth 2 x)))
-                       (j2t-c+ (j2t-tablify value (format "%s_%s%s" key ref (format "%s" i)) )))) nex)
+                         (value (nth 1 x))
+                         (i (nth 2 x)))
+                     (j2t-c+ (j2t-tablify value (format "%s_%s%s" key ref (format "%s" i)) )))) nex)
       )
 
      ;; ----- Element is a vector of vectors -----
@@ -162,6 +164,12 @@ REF: a reference is this is a linked table"
         (mapc (lambda (x) (j2t-c+ (j2t-parse-vector-vector x))) elt)
         (j2t-c+ "\n")
         ))
+
+     ;; ----- Element is an empty vector -----
+     ((and (vectorp elt)
+           (= (length elt) 0))
+      (j2t-c+ "| |\n")
+      )
 
      ;; ----- Element is a vector of strings -----
      ((vectorp elt)
