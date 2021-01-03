@@ -162,13 +162,6 @@ json
 #+end_src
 
 
-#+begin_src json :results :post (json-to-org-table-parse-json-string *this*)
-[{"type": "human", "name": "Manuel", "nickname": "Mannie"},
- {"type": "AI", "name": "HOLMES IV", "nickname": "Mike"},
- {"type": "human", "name": "Bernardo de la Paz", "nickname": "The Professor"}]
-#+end_src
-
-
 * WIP
 Org bable post processing with =json-to-org-table=
 
