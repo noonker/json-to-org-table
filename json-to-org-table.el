@@ -77,34 +77,34 @@ RETURNS: The table row representing values of a hashmap and a
          list of subtables to create if applicable
 EXAMPLE: ((a . (b . 2)) (c . d) (e . f)) -> '(\"|[[a]]|d|f|]\" '(a (b .2) 1))"
   (let ((cur "")
-        (keys (mapc #'car elt))
+        (keys (mapcar #'car elt))
         (nex '()))
-    (mapc (lambda (key)
-              (let ((value (alist-get key elt)))
-                (if (consp value)
-                    (progn
-                      (j2t-c+ (j2t-lf key ref i) "|")
-                      (setq nex (append nex '('(key value i)))))
-                  (j2t-c+ (j2t-cs value) "|" )))
-              ) keys)
-    '(cur nex)
-    )
-  )
+    (mapcar (lambda (key)
+            (let ((value (alist-get key elt)))
+              (if (consp value)
+                  (progn
+                    (j2t-c+ (j2t-lf key ref i) "|")
+                    (setq nex (append nex '('(key value i)))))
+                (j2t-c+ (j2t-cs value) "|" )))
+            ) keys)
+    `(,cur ,nex)
+    ))
 
-(defun j2t-parse-hash-element (elt &optional ref)
-  "A row parser for elements of a hash map.
+
+  (defun j2t-parse-hash-element (elt &optional ref)
+    "A row parser for elements of a hash map.
 ELT: A dotted pair cons representing a json hashmap
 REF: Reference if this is a linked table
 RETURNS: Return an object who's first element is the generated string
          and the second element is the key if a new table is required.
 EXAMPLE: (a . b) -> '(\"|a|b|\n\" '())"
-  (let ((key (car elt))
-        (val (cdr elt)))
-    (cond ((not val) `(,(j2t-hp key "") nil))
-          ((vectorp val) `(,(j2t-hp key (j2t-lf key ref)) ,key))
-          ((consp val) `(,(j2t-hp key (j2t-lf key ref)) ,key))
-          (t `(,(j2t-hp key (format "%s" val)) nil))
-          )))
+    (let ((key (car elt))
+          (val (cdr elt)))
+      (cond ((not val) `(,(j2t-hp key "") nil))
+            ((vectorp val) `(,(j2t-hp key (j2t-lf key ref)) ,key))
+            ((consp val) `(,(j2t-hp key (j2t-lf key ref)) ,key))
+            (t `(,(j2t-hp key (format "%s" val)) nil))
+            )))
 
 (defun j2t-tablify (elt &optional ref)
   "Function to be called recusrively to build an table.
