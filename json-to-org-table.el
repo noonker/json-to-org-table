@@ -138,7 +138,7 @@ REF: a reference is this is a linked table"
            (consp (aref elt 0)))
       (let ((keys (mapc #'car (aref elt 0)))
             )
-        (j2t-c+ (format "|%s|\n" (string-join "" (mapc (lambda (x) (format "%s" (car x))) keys))))
+        (j2t-c+ (format "|%s|\n" (string-join (mapcar (lambda (x) (format "%s" (car x))) keys) "|")))
         (j2t-c+ "|-\n")
         (seq-map-indexed
          (lambda (elt idx)
