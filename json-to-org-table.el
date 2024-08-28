@@ -116,21 +116,26 @@ REF: a reference is this is a linked table"
     (if ref (j2t-c+ (format "#+name: %s\n" ref))) ;; If there's a reference add a name block to establish the linkage
 
     (cond
+     ;; ----- Element is an empty vector -----
+     ((and (vectorp elt)
+           (= (length elt) 0))
+      (j2t-c+ "| |\n"))
+     
      ;; ----- Element is a hash-map -----
      ((consp elt)
       (progn
         (j2t-c+ "|key|value|\n|-\n") ;; Add headers for hashmap table
         ;; For each element in the hashmap either add the value or add a link to the table of values
         (mapc (lambda (x) (let ((parsed (j2t-parse-hash-element x ref)))
-                       (format "x: %s\nparsed: %s" x parsed)
-                       (j2t-c+ (car parsed))
-                       (if (cadr parsed) (setq nex (append (cdr parsed) nex))))) elt)
+			    (format "x: %s\nparsed: %s" x parsed)
+			    (j2t-c+ (car parsed))
+			    (if (cadr parsed) (setq nex (append (cdr parsed) nex))))) elt)
         (j2t-c+ "\n")
         ;; Recursively call this function to create any subtables
         (mapc (lambda (x)  (progn  (if j2t-debug (message (format "\nThe symbol I'm going to look up is: %s\n  it's type is: %s\n  and the value is: %s" x (type-of x) (alist-get x elt))))
-                              (if ref
-                                  (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s_%s" x ref)))
-                                (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s" x)))))) nex)
+				   (if ref
+                                       (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s_%s" x ref)))
+                                     (j2t-c+ (j2t-tablify (alist-get x elt) (format "%s" x)))))) nex)
         ))
 
      ;; ----- Element is a vector and is a vector of hash-maps -----
@@ -164,12 +169,6 @@ REF: a reference is this is a linked table"
         (mapc (lambda (x) (j2t-c+ (j2t-parse-vector-vector x))) elt)
         (j2t-c+ "\n")
         ))
-
-     ;; ----- Element is an empty vector -----
-     ((and (vectorp elt)
-           (= (length elt) 0))
-      (j2t-c+ "| |\n")
-      )
 
      ;; ----- Element is a vector of strings -----
      ((vectorp elt)
